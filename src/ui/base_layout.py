@@ -8,6 +8,64 @@ def style_background_home():
         <style>
 
                 .stApp {
+                    background: radial-gradient(circle at 15% 20%, #6c5ce7 0%, #5865F2 45%, #4752c4 100%) !important;
+                    background-attachment: fixed !important;
+                }
+
+                .stApp div[data-testid="stColumn"]{
+                    background: rgba(255, 255, 255, 0.88) !important;
+                    backdrop-filter: blur(16px) !important;
+                    -webkit-backdrop-filter: blur(16px) !important;
+                    padding: 2.5rem !important;
+                    border-radius: 2rem !important;
+                    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+                    box-shadow: 0 20px 45px rgba(20, 20, 60, 0.25) !important;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+                }
+
+                .stApp div[data-testid="stColumn"]:hover {
+                    transform: translateY(-6px) !important;
+                    box-shadow: 0 28px 55px rgba(20, 20, 60, 0.32) !important;
+                }
+
+                .hero-badge {
+                    display: flex;
+                    justify-content: center;
+                    margin: 0 0 2rem 0;
+                }
+
+                .hero-badge span {
+                    background: rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.35);
+                    color: white;
+                    padding: 8px 20px;
+                    border-radius: 999px;
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    backdrop-filter: blur(6px);
+                }
+
+                .portal-icon {
+                    font-size: 2.5rem;
+                    margin-bottom: 0.25rem;
+                }
+
+                .portal-sub {
+                    color: #64748b;
+                    font-size: 0.95rem;
+                    line-height: 1.4;
+                    margin-bottom: 1rem;
+                }
+        </style>  
+
+                """
+            ,unsafe_allow_html=True)
+
+    st.markdown("""
+        <style>
+
+                .stApp {
                     background: #5865F2 !important;
                 }
 
