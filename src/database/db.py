@@ -37,8 +37,12 @@ def get_all_students():
     response = supabase.table('students').select("*").execute()
     return response.data
 
-def create_student(new_name, face_embedding=None, voice_embedding=None):
-    data = {'name': new_name, 'face_embedding':face_embedding, "voice_embedding": voice_embedding}
+def create_student(new_name, face_embedding=None, voice_embedding=None, username=None, password=None):
+    data = {'name': new_name, 'face_embedding': face_embedding, "voice_embedding": voice_embedding}
+    if username:
+        data['username'] = username
+    if password:
+        data['password'] = hash_pass(password)
     response = supabase.table('students').insert(data).execute()
     return response.data
 
@@ -106,3 +110,22 @@ def get_attendance_for_teacher(teacher_id):
     response = supabase.table('attendance_logs').select("*, subjects!inner(*)").eq('subjects.teacher_id', teacher_id).execute()
     return response.data
 
+
+def check_student_username_exists(username):
+    response = supabase.table("students").select("student_id").eq("username", username).execute()
+    return len(response.data) > 0
+
+
+def student_login(username, password):
+    response = supabase.table('students').select("*").eq('username', username).execute()
+    if response.data:
+        student = response.data[0]
+        if student.get('password') and check_pass(password, student['password']):
+            return student
+    return None
+
+
+def update_student_credentials(student_id, username, password):
+    data = {'username': username, 'password': hash_pass(password)}
+    response = supabase.table('students').update(data).eq('student_id', student_id).execute()
+    return response.data
