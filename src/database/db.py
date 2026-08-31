@@ -65,6 +65,16 @@ def get_teacher_subjects(teacher_id):
 
     return subjects
 
+def get_all_subjects():
+    response = supabase.table('subjects').select("*, subject_students(count)").execute()
+    subjects = response.data
+
+    for sub in subjects:
+        sub['total_students'] = sub.get("subject_students", [{}])[0].get('count', 0) if sub.get('subject_students') else 0
+        sub.pop('subject_students', None)
+
+    return subjects
+
 
 def  enroll_student_to_subject(student_id, subject_id):
     data = {'student_id': student_id, "subject_id": subject_id}

@@ -14,6 +14,8 @@ import time
 from src.components.dialog_enroll import enroll_dialog
 from src.components.subject_card import subject_card
 
+from src.database.db import get_all_students, create_student, get_student_subjects, get_student_attendance, unenroll_student_to_subject, enroll_student_to_subject, get_all_subjects
+
 def student_dashboard():
     student_data = st.session_state.student_data
     student_id = student_data['student_id']
@@ -27,7 +29,6 @@ def student_dashboard():
             del st.session_state.student_data 
             st.rerun()
 
-
     st.space()
 
     c1, c2 =st.columns(2)
@@ -37,13 +38,12 @@ def student_dashboard():
         if st.button('Enroll in Subject', type='primary', width='stretch'):
             enroll_dialog()
 
-
     st.divider()
-
 
     with st.spinner('Loading your enrolled subjects..'):
         subjects = get_student_subjects(student_id)
         logs = get_student_attendance(student_id)
+        all_subjects = get_all_subjects()
 
     stats_map = {}
 
@@ -58,19 +58,17 @@ def student_dashboard():
         if log.get('is_present'):
             stats_map[sid]['attended'] += 1
 
-
     cols = st.columns(2)
     for i, sub_node in enumerate(subjects):
         sub = sub_node['subjects']
         sid = sub['subject_id']
 
-
         stats = stats_map.get(sid,{"total":0, "attended": 0} )
         def unenroll_button():
-                if st.button("Unenroll from tihs course", type='tertiary', width='stretch', icon=':material/delete_forever:'):
-                    unenroll_student_to_subject(student_id, sid)
-                    st.toast(f'Unenrolled from {sub['name']} successfully!')
-                    st.rerun()
+            if st.button("Unenroll from tihs course", type='tertiary', width='stretch', icon=':material/delete_forever:', key=f"unenroll_{sid}"):
+                unenroll_student_to_subject(student_id, sid)
+                st.toast(f'Unenrolled from {sub['name']} successfully!')
+                st.rerun()
 
         with cols[i % 2]:
 
@@ -84,8 +82,38 @@ def student_dashboard():
                 ],
                 footer_callback=unenroll_button
             )
-    footer_dashboard()
 
+    # ---- NEW: Available Courses section ----
+    st.space()
+    st.header('Available Courses')
+    st.divider()
+
+    enrolled_ids = {sub_node['subjects']['subject_id'] for sub_node in subjects}
+    available_subjects = [s for s in all_subjects if s['subject_id'] not in enrolled_ids]
+
+    if available_subjects:
+        avail_cols = st.columns(2)
+        for i, sub in enumerate(available_subjects):
+            def enroll_button():
+                if st.button('Enroll Now', type='primary', width='stretch', icon=':material/add_circle:', key=f"enroll_{sub['subject_code']}"):
+                    enroll_student_to_subject(student_id, sub['subject_id'])
+                    st.toast(f"Enrolled in {sub['name']} successfully!")
+                    st.rerun()
+
+            with avail_cols[i % 2]:
+                subject_card(
+                    name = sub['name'],
+                    code = sub['subject_code'],
+                    section = sub['section'],
+                    stats = [
+                        ('🫂', 'Students', sub.get('total_students', 0)),
+                    ],
+                    footer_callback=enroll_button
+                )
+    else:
+        st.info('No new courses available to enroll in right now.')
+
+    footer_dashboard()
 
 def student_screen():
 
