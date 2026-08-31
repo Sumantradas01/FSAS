@@ -10,7 +10,8 @@ from src.pipelines.face_pipeline import predict_attendance, get_face_embeddings,
 from src.pipelines.voice_pipeline import get_voice_embedding
 from src.database.db import (
     get_all_students, create_student, get_student_subjects, get_student_attendance,
-    unenroll_student_to_subject, student_login, check_student_username_exists,get_all_subjects
+    unenroll_student_to_subject, student_login, check_student_username_exists,get_all_subjects,
+    enroll_student_to_subject
 )
 import time
 
@@ -108,6 +109,46 @@ def student_dashboard():
                 ],
                 footer_callback=unenroll_button
             )
+
+    st.space()
+    c1, c2 = st.columns(2)
+    with c1:
+        st.header('Available Courses')
+    with c2:
+        if st.button('Enroll via Code', type='primary', width='stretch'):
+            enroll_dialog()
+
+    st.divider()
+
+    enrolled_ids = {sub_node['subjects']['subject_id'] for sub_node in subjects}
+    available_subjects = [s for s in all_subjects if s['subject_id'] not in enrolled_ids]
+
+    if not available_subjects:
+        st.info('No new courses available to enroll in right now.')
+    else:
+        avail_cols = st.columns(2)
+        for i, sub in enumerate(available_subjects):
+            def enroll_button(sid=sub['subject_id'], subject_name=sub['name'], index=i):
+                if st.button(
+                    "Enroll Now",
+                    type='primary',
+                    width='stretch',
+                    icon=':material/add_circle:',
+                    key=f"enroll_avail_{student_id}_{index}"
+                ):
+                    enroll_student_to_subject(student_id, sid)
+                    st.toast(f"Enrolled in {subject_name} successfully!")
+                    st.rerun()
+
+            with avail_cols[i % 2]:
+                subject_card(
+                    name=sub['name'],
+                    code=sub['subject_code'],
+                    section=sub['section'],
+                    stats=[('🫂', 'Students', sub['total_students'])],
+                    footer_callback=enroll_button
+                )
+
     footer_dashboard()
 
 
