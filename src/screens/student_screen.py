@@ -82,6 +82,9 @@ def student_dashboard():
             {"total": 0, "attended": 0}
         )
 
+        teacher_info = sub.get('teachers')
+        teacher_name = teacher_info.get('name') if teacher_info else None
+        
         def unenroll_button(sid=sid, subject_name=sub['name'], index=i):
             if st.button(
                 "Unenroll from this course",
@@ -103,7 +106,8 @@ def student_dashboard():
                 name=sub['name'],
                 code=sub['subject_code'],
                 section=sub['section'],
-                stats=[
+                teacher_name=teacher_name,
+                 stats=[
                     ('📅', 'Total', stats['total']),
                     ('✅', 'Attended', stats['attended']),
                 ],
@@ -145,6 +149,7 @@ def student_dashboard():
                     name=sub['name'],
                     code=sub['subject_code'],
                     section=sub['section'],
+                    teacher_name=sub.get('teacher_name'),
                     stats=[('🫂', 'Students', sub['total_students'])],
                     footer_callback=enroll_button
                 )

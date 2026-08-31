@@ -70,12 +70,14 @@ def get_teacher_subjects(teacher_id):
     return subjects
 
 def get_all_subjects():
-    response = supabase.table('subjects').select("*, subject_students(count)").execute()
+    response = supabase.table('subjects').select("*, subject_students(count), teachers(name)").execute()
     subjects = response.data
 
     for sub in subjects:
         sub['total_students'] = sub.get("subject_students", [{}])[0].get('count', 0) if sub.get('subject_students') else 0
+        sub['teacher_name'] = sub.get('teachers', {}).get('name', 'Unknown') if sub.get('teachers') else 'Unknown'
         sub.pop('subject_students', None)
+        sub.pop('teachers', None)
 
     return subjects
 
@@ -93,9 +95,8 @@ def  unenroll_student_to_subject(student_id, subject_id):
 
 
 def get_student_subjects(student_id):
-    response = supabase.table('subject_students').select('*, subjects(*)').eq('student_id', student_id).execute()
+    response = supabase.table('subject_students').select('*, subjects(*, teachers(name))').eq('student_id', student_id).execute()
     return response.data
-
 
 def get_student_attendance(student_id):
     response = supabase.table('attendance_logs').select('*, subjects(*)').eq('student_id', student_id).execute()
