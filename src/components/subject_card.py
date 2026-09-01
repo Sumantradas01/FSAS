@@ -13,7 +13,7 @@ def subject_card(name, code, section, teacher_name=None, stats=None, footer_call
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
         """
         for icon, label, value in stats:
-            html+= f'<div style="background: #EB459E10; padding:5px 12px; border-radius:12px; font-size:0.9rem">{icon} <b>{value}</b> {label} </div>'
+            html+= f'<div style="background: #64748b; padding:5px 12px; border-radius:12px; font-size:0.9rem">{icon} <b>{value}</b> {label} </div>'
         
         html+= "</div>"
     st.markdown(html, unsafe_allow_html=True)
